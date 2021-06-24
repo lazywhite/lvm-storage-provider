@@ -1,0 +1,39 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: nfs-provider
+  labels:
+    app: nfs-provider
+  # replace with namespace where provisioner is deployed
+  namespace: default
+spec:
+  replicas: 1
+  strategy:
+    type: Recreate
+  selector:
+    matchLabels:
+      app: nfs-provider
+  template:
+    metadata:
+      labels:
+        app: nfs-provider
+    spec:
+      serviceAccountName: nfs-provider
+      containers:
+        - name: nfs-provider
+          image: <<>>
+          volumeMounts:
+            - name: nfs-client-root
+              mountPath: /data
+          env:
+            - name: PROVISIONER_NAME
+              value: lvm-provider
+            - name: NFS_SERVER
+              value: 192.168.56.102
+            - name: NFS_PATH
+              value: /nfsdata
+      volumes:
+        - name: nfs-client-root
+          nfs:
+            server: 192.168.56.102
+            path: /nfsdata
